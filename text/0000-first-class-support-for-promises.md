@@ -40,6 +40,7 @@ This proposal is not a complete data fetching solution on its own because it doe
 - [Frequently asked questions](#frequently-asked-questions)
   - [Why isn't `use` called something more specific?](#why-isnt-use-called-something-more-specific)
   - [Why can't `use` be called in regular, non-React functions?](#why-cant-use-be-called-in-regular-non-react-functions)
+  - [How about calling it [alternate name] instead?](#how-about-calling-it-alternate-name-instead)
   - [Why can't Client Components be async functions?](#why-cant-client-components-be-async-functions)
   - [Why not generator functions?](#why-not-generator-functions)
 - [Unresolved questions](#unresolved-questions)
@@ -163,7 +164,7 @@ function TooltipContainer({showTooltip}) {
     // If `showTooltip` is true, we wait for the promise to resolve by passing
     // it to `use`. It probably already loaded, because the request was
     // initiated during the previous render.
-    return <Tooltip data={use(promise)} />;
+    return <Tooltip content={use(promise)} />;
   }
 }
 ```
@@ -383,7 +384,7 @@ function ItemsWithMap() {
     // ❌ The parent closure is not a component or Hook!
     // This will cause a compiler error.
     const data = use(fetchThing(id));
-    items.push(<Item key={id} data={data} />);
+    return <Item key={id} data={data} />;
   });
 }
 ```
@@ -394,7 +395,7 @@ The reason `use` is allowed to be called conditionally is that, unlike most othe
 
 A planned feature for Server Components is to support passing a promise as a prop to a Client Component. This is slightly outside the scope of this proposal, but it's worth mentioning because it highlights why being able to contionally invoke `use` is so valuable.
 
-TODO: Add an example
+TODO: Example
 
 ### Other "Usable" types
 
@@ -437,6 +438,17 @@ If we allowed `use` to be called in regular functions, it would be up to the dev
 It would also make it harder for a memoizing compiler to re-use computations, because it would have to assume that _any_ arbitrary function might possibly suspend.
 
 We could introduce a separate naming convention that's different from hooks, but it doesn't seem worth adding yet-another type of React function for only this case. In practice, we don't think it will be a big issue, in the same way that not being able to call Hooks conditionally isn't a big deal.
+
+## How about calling it [alternate name] instead?
+
+Alternate suggestions for names are appreciated. Some things to keep in mind, though.
+
+The name should not only suggest "unwrapping", it should also indicate that it's a React-only function. An advantage of "use" is that it builds on the naming convention established by the other Hooks already. A different name would require developers to learn two special words instead of one.
+
+Here's how we might teach this to beginners:
+
+- Any function that starts with "use" is a Hook — it can only be called from a React function (a component or custom Hook)
+- Except for the function called "use" (no extra characters), all other Hooks can only be called at the top level.
 
 ## Why can't Client Components be async functions?
 
